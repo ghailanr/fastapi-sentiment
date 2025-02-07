@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
 import pandas as pd
 import os
@@ -11,16 +12,19 @@ vectorizer = joblib.load(vectorizer_path)
 
 app = FastAPI()
 
+class TweetInput(BaseModel):
+    tweet: str
+
 @app.get("/")
 def home():
     return {"message": "API de prédiction de sentiment avec régression logistique"}
 
 
 @app.post("/predict/")
-def predict_sentiment(tweet: str):
+def predict_sentiment(input: TweetInput):
     # Transformer le tweet en vecteur
-    tweet_vectorized = vectorizer.transform([tweet])
+    tweet_vectorized = vectorizer.transform([input.tweet])
 
     prediction = int(model.predict(tweet_vectorized)[0])
     sentiment = "POSITIF" if prediction == 1 else "NEGATIF"
-    return {"tweet": tweet, "sentiment": sentiment}
+    return {"tweet": input.tweet, "sentiment": sentiment}
