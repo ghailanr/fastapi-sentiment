@@ -4,9 +4,10 @@ import pandas as pd
 import os
 
 model_path = os.path.join(os.path.dirname(__file__), "model/model.pkl")
-model = joblib.load(model_path)
+vectorizer_path = os.path.join(os.path.dirname(__file__), "model/tfidf.pkl")
 
-vectorizer = joblib.load("model/tfidf.pkl")
+model = joblib.load(model_path)
+vectorizer = joblib.load(vectorizer_path)
 
 app = FastAPI()
 
