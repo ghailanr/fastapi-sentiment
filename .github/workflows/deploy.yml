@@ -22,19 +22,22 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Se connecter à Azure avec Service Principal
+      - name: Définir le PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+
+      - name: Lancer les tests unitaires
+        run: pytest tests/
+
+      - name: Se connecter à Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Déployer l'API sur Azure
+      - name: Déployer l'API
         uses: azure/webapps-deploy@v2
         with:
           app-name: "fastapi-sentiment"
           package: .
-
-      - name: Lancer les tests
-        run: pytest
 
       - name: Se déconnecter d’Azure
         run: az logout
