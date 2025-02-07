@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 import joblib
 import pandas as pd
+import os
 
-model = joblib.load("model/model.pkl")
+model_path = os.path.join(os.path.dirname(__file__), "model/model.pkl")
+model = joblib.load(model_path)
+
 vectorizer = joblib.load("model/tfidf.pkl")
 
 app = FastAPI()
