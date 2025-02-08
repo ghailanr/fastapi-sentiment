@@ -31,8 +31,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Lancer les tests unitaires
-        run: pytest tests/
+      - name: Définir le PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+
+      - name: Exécuter les tests unitaires
+        run: |
+          pytest tests --maxfail=5 --disable-warnings
+      
 
       - name: Se connecter à Azure
         uses: azure/login@v1
