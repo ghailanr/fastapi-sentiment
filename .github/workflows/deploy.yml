@@ -61,6 +61,12 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      - name: Install dependencies on Azure
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --no-cache-dir -r requirements.txt
+
       - name: Check installed packages
         run: pip list
 
