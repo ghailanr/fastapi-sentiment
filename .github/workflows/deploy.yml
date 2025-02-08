@@ -66,6 +66,9 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      - name: Check installed packages
+        run: venv/bin/pip list
+
       - name: Se connecter à Azure
         uses: azure/login@v1
         with:
