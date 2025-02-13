@@ -1,16 +1,27 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 import joblib
 import os
-
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 model_path = os.path.join(os.path.dirname(__file__), "model/model.pkl")
 vectorizer_path = os.path.join(os.path.dirname(__file__), "model/tfidf.pkl")
+
+INSTRUMENTATION_KEY = "fc646e0f-4800-497c-ae30-69ab0005cb45"
+
+app = FastAPI()
+
+
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
+logger.addHandler(AzureLogHandler(connection_string=f'InstrumentationKey={INSTRUMENTATION_KEY}'))
+
+predictions = {}
+
 
 model = joblib.load(model_path)
 vectorizer = joblib.load(vectorizer_path)
 
-app = FastAPI()
 
 class TweetInput(BaseModel):
     tweet: str
@@ -25,9 +36,26 @@ def predict_sentiment(input: TweetInput):
     # Transformer le tweet en vecteur
     tweet_vectorized = vectorizer.transform([input.tweet])
     prediction = int(model.predict(tweet_vectorized)[0])
+    prediction_id = len(predictions) + 1
+    predictions[prediction_id] = {"tweet": input.tweet, "prediction": prediction}
     sentiment = "POSITIF" if prediction == 1 else "NEGATIF"
-    return {"tweet": input.tweet, "sentiment": sentiment}
+    return {"id": prediction_id, "sentiment": sentiment}
 
+@app.post("/feedback/")
+def feedback(prediction_id: int, correct: bool):
+    if prediction_id not in predictions:
+        raise HTTPException(status_code=404, detail="Prediction ID not found")
+
+    data = predictions[prediction_id]
+    logger.warning("User feedback", extra={
+        "custom_dimensions": {
+            "tweet": data["tweet"],
+            "prediction": data["prediction"],
+            "correct": correct
+        }
+    })
+
+    return {"message": "Feedback enregistré"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
