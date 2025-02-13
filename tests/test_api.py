@@ -4,7 +4,7 @@ from app.main import app
 client = TestClient(app)
 
 def test_predict():
-    response = client.post("/predict", json={"tweet": "J'adore ce produit !"})
+    response = client.post("/predict/", json={"tweet": "J'adore ce produit !"})
     assert response.status_code == 200
     data = response.json()
     assert "id" in data

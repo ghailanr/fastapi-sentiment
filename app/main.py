@@ -17,15 +17,14 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.INFO)
 logger.addHandler(AzureLogHandler(connection_string=f'InstrumentationKey={INSTRUMENTATION_KEY}'))
 
+model = joblib.load(model_path)
+vectorizer = joblib.load(vectorizer_path)
 predictions = {}
 
 
-model = joblib.load(model_path)
-vectorizer = joblib.load(vectorizer_path)
-
-
 class TweetInput(BaseModel):
-    tweet: str
+    tweet: stre
+
 
 @app.get("/")
 def home():
@@ -33,14 +32,15 @@ def home():
 
 
 @app.post("/predict/")
-def predict_sentiment(input: TweetInput):
+def predict_sentiment(userInput: TweetInput):
     # Transformer le tweet en vecteur
-    tweet_vectorized = vectorizer.transform([input.tweet])
+    tweet_vectorized = vectorizer.transform([userInput.tweet])
     prediction = int(model.predict(tweet_vectorized)[0])
     prediction_id = len(predictions) + 1
-    predictions[prediction_id] = {"tweet": input.tweet, "prediction": prediction}
+    predictions[prediction_id] = {"tweet": userInput.tweet, "prediction": prediction}
     sentiment = "POSITIF" if prediction == 1 else "NEGATIF"
-    return {"id": prediction_id, "sentiment": sentiment}
+    return {"id": prediction_id, "prediction": sentiment}
+
 
 @app.post("/feedback/")
 def feedback(prediction_id: int, correct: bool):
@@ -57,6 +57,7 @@ def feedback(prediction_id: int, correct: bool):
     })
 
     return {"message": "Feedback enregistré"}
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
