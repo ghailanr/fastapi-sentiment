@@ -26,6 +26,11 @@ class TweetInput(BaseModel):
     tweet: str
 
 
+class PredictionFeedback(BaseModel):
+    prediction_id: int
+    correct: bool
+
+
 @app.get("/")
 def home():
     return {"message": "API de prédiction de sentiment avec régression logistique"}
@@ -43,7 +48,9 @@ def predict_sentiment(userInput: TweetInput):
 
 
 @app.post("/feedback/")
-def feedback(prediction_id: int, correct: bool):
+def feedback(userInput: PredictionFeedback):
+    prediction_id = userInput.prediction_id
+    correct = userInput.correct
     if prediction_id not in predictions:
         raise HTTPException(status_code=404, detail="Prediction ID not found")
 
