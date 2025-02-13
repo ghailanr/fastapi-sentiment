@@ -5,4 +5,4 @@ scikit-learn
 pandas
 pytest
 httpx
-opencensus
+opencensus.ext.azure.log_exporter
