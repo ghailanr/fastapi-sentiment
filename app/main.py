@@ -4,6 +4,7 @@ import uvicorn
 import joblib
 import os
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+import logging
 model_path = os.path.join(os.path.dirname(__file__), "model/model.pkl")
 vectorizer_path = os.path.join(os.path.dirname(__file__), "model/tfidf.pkl")
 
