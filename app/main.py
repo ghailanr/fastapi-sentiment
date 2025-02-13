@@ -23,7 +23,7 @@ predictions = {}
 
 
 class TweetInput(BaseModel):
-    tweet: stre
+    tweet: str
 
 
 @app.get("/")
