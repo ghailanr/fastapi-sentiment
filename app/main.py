@@ -16,6 +16,7 @@ app = FastAPI()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(AzureLogHandler(connection_string=f'InstrumentationKey={INSTRUMENTATION_KEY}'))
+logger.info("L'API FastAPI a bien démarré et envoie des logs à Azure.")
 
 model = joblib.load(model_path)
 vectorizer = joblib.load(vectorizer_path)
@@ -49,7 +50,6 @@ def feedback(userInput: PredictionFeedback):
     log_message = {
         "feedback": correct
     }
-
     logger.info("User feedback", extra={"custom_dimensions": log_message})
     return {"message": "Feedback sent"}
 
