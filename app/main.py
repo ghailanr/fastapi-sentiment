@@ -47,10 +47,10 @@ def predict_sentiment(userInput: TweetInput):
 def feedback(userInput: PredictionFeedback):
     correct = userInput.correct
     log_message = {
-        "feedback": userInput.correct
+        "feedback": correct
     }
 
-    logger.info("User feedback", extra={"custom_dimension": log_message})
+    logger.info("User feedback", extra={"custom_dimensions": log_message})
     return {"message": "Feedback sent"}
 
 
