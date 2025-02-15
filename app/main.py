@@ -14,12 +14,11 @@ app = FastAPI()
 
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 logger.addHandler(AzureLogHandler(connection_string=f'InstrumentationKey={INSTRUMENTATION_KEY}'))
 
 model = joblib.load(model_path)
 vectorizer = joblib.load(vectorizer_path)
-predictions = {}
 
 
 class TweetInput(BaseModel):
@@ -27,7 +26,6 @@ class TweetInput(BaseModel):
 
 
 class PredictionFeedback(BaseModel):
-    prediction_id: int
     correct: bool
 
 
@@ -41,29 +39,19 @@ def predict_sentiment(userInput: TweetInput):
     # Transformer le tweet en vecteur
     tweet_vectorized = vectorizer.transform([userInput.tweet])
     prediction = int(model.predict(tweet_vectorized)[0])
-    prediction_id = len(predictions) + 1
-    predictions[prediction_id] = {"tweet": userInput.tweet, "prediction": prediction}
     sentiment = "POSITIF" if prediction == 1 else "NEGATIF"
-    return {"id": prediction_id, "prediction": sentiment}
+    return {"prediction": sentiment}
 
 
 @app.post("/feedback/")
 def feedback(userInput: PredictionFeedback):
-    prediction_id = userInput.prediction_id
     correct = userInput.correct
-    if prediction_id not in predictions:
-        raise HTTPException(status_code=404, detail="Prediction ID not found")
+    log_message = {
+        "feedback": userInput.correct
+    }
 
-    data = predictions[prediction_id]
-    logger.warning("User feedback", extra={
-        "custom_dimensions": {
-            "tweet": data["tweet"],
-            "prediction": data["prediction"],
-            "correct": correct
-        }
-    })
-
-    return {"message": "Feedback enregistré"}
+    logger.info("User feedback", extra={"custom_dimension": log_message})
+    return {"message": "Feedback sent"}
 
 
 if __name__ == "__main__":
