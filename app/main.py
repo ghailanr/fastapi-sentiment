@@ -27,7 +27,7 @@ class TweetInput(BaseModel):
 
 
 class PredictionFeedback(BaseModel):
-    correct: bool
+    correct: str
 
 
 @app.get("/")
@@ -48,7 +48,7 @@ def predict_sentiment(userInput: TweetInput):
 def feedback(userInput: PredictionFeedback):
     correct = userInput.correct
     log_message = {
-        "feedback": correct
+        "correct": correct
     }
     logger.info("User feedback", extra={"custom_dimensions": log_message})
     return {"message": "Feedback sent"}
