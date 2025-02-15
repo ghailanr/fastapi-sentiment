@@ -27,7 +27,7 @@ class TweetInput(BaseModel):
 
 
 class PredictionFeedback(BaseModel):
-    correct: str
+    correct: bool
 
 
 @app.get("/")
