@@ -5,6 +5,6 @@ scikit-learn
 pandas
 pytest
 httpx
-azure-core==1.29.4
+azure-core==1.38.0
 azure-identity==1.16.1
 opencensus-ext-azure==1.1.9
